@@ -5,6 +5,8 @@ custom:
   tableName: 'users-table-${sls:stage}'
   dynamodb:
     start:
+      port: 8000
+      inMemory: true
       migrate: true
     stages:
       - dev
@@ -50,5 +52,5 @@ resources:
         TableName: ${self:custom.tableName}
 
 plugins:
-  - serverless-offline 
   - serverless-dynamodb-local
+  - serverless-offline
