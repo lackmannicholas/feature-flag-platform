@@ -2,7 +2,7 @@ service: aws-node-express-dynamodb-api
 frameworkVersion: '3'
 
 custom:
-  tableName: 'users-table-${sls:stage}'
+  tableName: 'feature-flag-table-${sls:stage}'
   dynamodb:
     start:
       port: 8000
@@ -26,9 +26,9 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [ UsersTable, Arn ]
+            - Fn::GetAtt: [ FeatureFlagTable, Arn ]
   environment:
-    USERS_TABLE: ${self:custom.tableName}
+    FEATURE_FLAG_TABLE: ${self:custom.tableName}
     IS_OFFLINE: true
 
 functions:
@@ -39,15 +39,19 @@ functions:
 
 resources:
   Resources:
-    UsersTable:
+    FeatureFlagTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
+          - AttributeName: featureKey
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
+          - AttributeName: featureKey
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:custom.tableName}
 
