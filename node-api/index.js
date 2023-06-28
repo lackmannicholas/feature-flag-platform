@@ -20,8 +20,8 @@ app.get("/feature-flag/:featureKey", async function (req, res) {
   const params = {
     TableName: FEATURE_FLAG_TABLE,
     Key: {
-      userId: req.params.userId,
-      featureKey: req.params.featureKey
+      userId: req?.params?.userId, // hash key
+      featureKey: req?.params?.featureKey // sort key
     },
   };
 
@@ -37,7 +37,7 @@ app.get("/feature-flag/:featureKey", async function (req, res) {
     }
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: "Could not retreive user" });
+    res.status(500).json({ error: "Could not retreive feature flag" });
   }
 });
 

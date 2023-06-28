@@ -1,4 +1,4 @@
-service: aws-node-express-dynamodb-api
+service: feature-flag-platform
 frameworkVersion: '3'
 
 custom:
@@ -29,7 +29,6 @@ provider:
             - Fn::GetAtt: [ FeatureFlagTable, Arn ]
   environment:
     FEATURE_FLAG_TABLE: ${self:custom.tableName}
-    IS_OFFLINE: true
 
 functions:
   api:
