@@ -12,7 +12,13 @@ const app = express();
 
 const USERS_TABLE = process.env.USERS_TABLE;
 const client = new DynamoDBClient();
-const dynamoDbClient = DynamoDBDocumentClient.from(client);
+const dynamoDbClientParams = {};
+console.log(process.env.IS_OFFLINE)
+if (process.env.IS_OFFLINE) {
+  dynamoDbClientParams.region = 'localhost'
+  dynamoDbClientParams.endpoint = 'http://localhost:8000'
+}
+const dynamoDbClient = new AWS.DynamoDB.DocumentClient(dynamoDbClientParams);
 
 app.use(express.json());
 
