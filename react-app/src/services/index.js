@@ -2,12 +2,12 @@ import { cloneDeep } from "lodash";
 
 const APIEndPoint = 'https://cgd2h41rrf.execute-api.us-east-1.amazonaws.com';
 
-const addFeatureFlag = async (ff, featureFlags) => {
+const addFeatureFlag = async (ff, featureFlags, userId) => {
     const res = await fetch(APIEndPoint + '/feature-flag', {
         headers: { accept: "application/json" },
         method: "POST",
         body: JSON.stringify({
-        userId: "nick",
+        userId: userId,
         featureKey: ff.featureKey,
         targeting: ff.targeting || false,
         value: ff.value || { default: false }
@@ -22,7 +22,7 @@ const addFeatureFlag = async (ff, featureFlags) => {
     return featureFlags;
 }
 
-const updateFeatureFlag = async (ff, i, featureFlags) => {
+const updateFeatureFlag = async (ff, i, featureFlags, userId) => {
     const newFeatureFlags = cloneDeep(featureFlags);
     newFeatureFlags[i] = ff;
 
@@ -30,7 +30,7 @@ const updateFeatureFlag = async (ff, i, featureFlags) => {
         headers: { accept: "application/json" },
         method: "PUT",
         body: JSON.stringify({
-        userId: "nick",
+        userId: userId,
         featureKey: ff.featureKey,
         targeting: ff.targeting || false,
         value: ff.value || { default: false }
@@ -45,9 +45,9 @@ const updateFeatureFlag = async (ff, i, featureFlags) => {
     return featureFlags;
 }
 
-const deleteFeatureFlag = async (i, featureFlags) => {
+const deleteFeatureFlag = async (i, featureFlags, userId) => {
     console.log(featureFlags[i].featureKey);
-    const res = await fetch(APIEndPoint + '/user/nick/feature-flag/' + featureFlags[i].featureKey, {
+    const res = await fetch(APIEndPoint + `/user/${userId}/feature-flag/` + featureFlags[i].featureKey, {
         headers: { accept: "application/json" },
         method: "DELETE"
     })
@@ -60,8 +60,8 @@ const deleteFeatureFlag = async (i, featureFlags) => {
     return featureFlags;
 }
 
-const getFeatureFlags = async () => {
-    const res = await fetch(APIEndPoint + `/user/nick/feature-flag`, {
+const getFeatureFlags = async (userId) => {
+    const res = await fetch(APIEndPoint + `/user/${userId}/feature-flag`, {
         headers: { accept: "application/json" },
         method: "GET",
     })

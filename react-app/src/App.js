@@ -38,27 +38,26 @@ function App() {
       .catch(() => Auth.federatedSignIn());
   }
 
-
   useEffect(() => {
     const getFF = async () => {
-      const ffs = await getFeatureFlags();
+      const ffs = await getFeatureFlags(user.attributes.sub);
       setFeatureFlags(ffs);
     }
     getFF();
   }, []);
 
   const onDelete = async (i) => {
-    const newFFs = await deleteFeatureFlag(i, featureFlags);
+    const newFFs = await deleteFeatureFlag(i, featureFlags, user.attributes.sub);
     setFeatureFlags(newFFs);
   }
 
   const onAdd = async (newFF) => {
-    const newFFs = await addFeatureFlag(newFF, featureFlags);
+    const newFFs = await addFeatureFlag(newFF, featureFlags, user.attributes.sub);
     setFeatureFlags(newFFs);
   }
 
   const onUpdate = async (ff, i) => {
-    const newFFs = await updateFeatureFlag(ff, i, featureFlags);
+    const newFFs = await updateFeatureFlag(ff, i, featureFlags, user.attributes.sub);
     setFeatureFlags(newFFs);
   }
 
