@@ -1,14 +1,9 @@
 import { cloneDeep } from "lodash";
 
 const APIEndPoint = 'https://cgd2h41rrf.execute-api.us-east-1.amazonaws.com';
-const getBody = (req) => {
-    let buff = Buffer.from(req.body, "base64");
-    let eventBodyStr = buff.toString('UTF-8');
-    return JSON.parse(eventBodyStr);
-}
 
 const addFeatureFlag = async (ff, featureFlags) => {
-    const { data, error } = await fetch(APIEndPoint + '/feature-flag', {
+    const res = await fetch(APIEndPoint + '/feature-flag', {
         headers: { accept: "application/json" },
         method: "POST",
         body: JSON.stringify({
@@ -18,19 +13,20 @@ const addFeatureFlag = async (ff, featureFlags) => {
         value: ff.value
         })
     })
-    if (error) { console.log(error) }
-    if (data) {
+
+    if (res.ok) {
         let newList = cloneDeep(featureFlags);
         newList.push(ff);
         return newList;
     }
+    return featureFlags;
 }
 
 const updateFeatureFlag = async (ff, i, featureFlags) => {
     const newFeatureFlags = cloneDeep(featureFlags);
     newFeatureFlags[i] = ff;
 
-    const { data, error } = await fetch(APIEndPoint + '/feature-flag', {
+    const res = await fetch(APIEndPoint + '/feature-flag', {
         headers: { accept: "application/json" },
         method: "PUT",
         body: JSON.stringify({
@@ -40,12 +36,30 @@ const updateFeatureFlag = async (ff, i, featureFlags) => {
         value: ff.value
         })
     })
-    if (error) { console.log(error) }
-    if (data) {
+
+    if (res.ok) {
         let newList = cloneDeep(featureFlags);
         newList[i] = ff;
         return newList;
     }
+    return featureFlags;
+}
+
+const deleteFeatureFlag = async (ff, i, featureFlags) => {
+    const newFeatureFlags = cloneDeep(featureFlags);
+    newFeatureFlags[i] = ff;
+
+    const res = await fetch(APIEndPoint + '/user/nick/feature-flag/' + ff.featureKey, {
+        headers: { accept: "application/json" },
+        method: "DELETE"
+    })
+
+    if (res.ok) {
+        let newList = cloneDeep(featureFlags);
+        newList[i] = ff;
+        return newList;
+    }
+    return featureFlags;
 }
 
 const getFeatureFlags = async () => {
@@ -53,10 +67,9 @@ const getFeatureFlags = async () => {
         headers: { accept: "application/json" },
         method: "GET",
     })
-    const body = await res.json();
-    console.log(body);
-    // if (error) { console.log(error) }
-    if (body) {
+
+    if (res.ok) {
+        const body = await res.json();
         return body;
     }
     return [];
@@ -65,5 +78,6 @@ const getFeatureFlags = async () => {
 export {
     addFeatureFlag,
     updateFeatureFlag,
-    getFeatureFlags
+    getFeatureFlags,
+    deleteFeatureFlag
 }
