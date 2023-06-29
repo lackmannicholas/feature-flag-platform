@@ -2,6 +2,7 @@ const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const {
   DynamoDBDocumentClient,
   GetCommand,
+  QueryCommand,
   PutCommand,
 } = require("@aws-sdk/lib-dynamodb");
 const AWS = require("aws-sdk");
@@ -30,6 +31,31 @@ app.get("/feature-flag/:featureKey", async function (req, res) {
     if (Item) {
       const { featureKey, value } = Item;
       res.json({ featureKey, value });
+    } else {
+      res
+        .status(404)
+        .json({ error: 'Could not find user with provided "featureKey"' });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Could not retreive feature flag" });
+  }
+});
+
+app.get("/feature-flag", async function (req, res) {
+  const params = {
+    TableName: FEATURE_FLAG_TABLE,
+    KeyConditionExpression:
+      "userId = :userId",
+      ExpressionAttributeValues: {
+        ":userId": "nick"
+      }
+  }
+
+  try {
+    const { Items } = await dynamoDbClient.send(new QueryCommand(params));
+    if (Items) {
+      res.json(Items);
     } else {
       res
         .status(404)

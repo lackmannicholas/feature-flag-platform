@@ -5,11 +5,12 @@ import { Button } from 'antd';
 import './App.css';
 import { useFetch } from "react-async"
 import List from './List';
+import { useState } from 'react';
 
-// To be replaced by the endpoint of the API deployed through the CloudFormation Template
-const APIEndPoint = 'https://uq5welhyn6.execute-api.us-east-1.amazonaws.com/feature-flags'
+const APIEndPoint = 'https://cgd2h41rrf.execute-api.us-east-1.amazonaws.com/feature-flag'
 
 function App() {
+  const [featureFlags, setFeatureFlags] = useState([{featureKey: "test 1", value: true },{featureKey: "test 2", value: false }]);
   return (
     <div className="App">
         <header className="App-header">
@@ -23,7 +24,7 @@ function App() {
             <img src={logoS3} className="App-logoR2L" alt="logo S3" />
             <img src={logoCF} className="App-logoL2R" alt="logo CloudFront" />
         </div>
-        <List featureFlags={[{featureKey: "test 1", value: true },{featureKey: "test 2", value: false }]} />
+        <List featureFlags={featureFlags} />
         <Button type="primary">Add Feature Flag</Button>
     </div>
   );
