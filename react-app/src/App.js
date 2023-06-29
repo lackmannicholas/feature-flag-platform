@@ -4,12 +4,40 @@ import './App.css';
 import List from './components/List';
 import Add from './components/Add';
 import { useState, useEffect } from 'react';
+import { Auth, Hub } from 'aws-amplify';
 import { updateFeatureFlag, getFeatureFlags, addFeatureFlag, deleteFeatureFlag } from './services';
-
 
 function App() {
   const [featureFlags, setFeatureFlags] = useState([]);
   const [newFeatureFlag, setNewFeatureFlag] = useState();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    Hub.listen('auth', ({ payload: { event, data } }) => {
+      switch (event) {
+        case 'signIn':
+        case 'cognitoHostedUI':
+          getUser().then(userData => setUser(userData));
+          break;
+        case 'signOut':
+          setUser(null);
+          break;
+        case 'signIn_failure':
+        case 'cognitoHostedUI_failure':
+          console.log('Sign in failure', data);
+          break;
+      }
+    });
+
+    getUser().then(userData => setUser(userData));
+  }, []);
+
+  function getUser() {
+    return Auth.currentAuthenticatedUser()
+      .then(userData => userData)
+      .catch(() => Auth.federatedSignIn());
+  }
+
 
   useEffect(() => {
     const getFF = async () => {
@@ -36,6 +64,12 @@ function App() {
 
   return (
     <div className="App">
+       <p>User: {user ? JSON.stringify(user.attributes) : 'None'}</p>
+      {user ? (
+        <button onClick={() => Auth.signOut()}>Sign Out</button>
+      ) : (
+        <button onClick={() => Auth.federatedSignIn()}>Federated Sign In</button>
+      )}
         <header className="App-header">
           <img src={logo} className="App-MainLogo" alt="logo" />
         </header>
