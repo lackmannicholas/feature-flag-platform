@@ -4,9 +4,11 @@ const {
   GetCommand,
   QueryCommand,
   PutCommand,
+  DeleteCommand,
 } = require("@aws-sdk/lib-dynamodb");
 const AWS = require("aws-sdk");
 const express = require("express");
+const cors = require("cors");
 const serverless = require("serverless-http");
 
 const app = express();
@@ -16,8 +18,9 @@ const client = new DynamoDBClient();
 const dynamoDbClient = DynamoDBDocumentClient.from(client);
 
 app.use(express.json());
+app.use(cors());
 
-app.get("/feature-flag/:featureKey", async function (req, res) {
+app.get("/user/:userId/feature-flag/:featureKey", async function (req, res) {
   const params = {
     TableName: FEATURE_FLAG_TABLE,
     Key: {
@@ -42,13 +45,13 @@ app.get("/feature-flag/:featureKey", async function (req, res) {
   }
 });
 
-app.get("/feature-flag", async function (req, res) {
+app.get("/user/:userId/feature-flag/", async function (req, res) {
   const params = {
     TableName: FEATURE_FLAG_TABLE,
     KeyConditionExpression:
       "userId = :userId",
       ExpressionAttributeValues: {
-        ":userId": "nick"
+        ":userId": req?.params?.userId
       }
   }
 
@@ -71,13 +74,13 @@ app.post("/feature-flag", async function (req, res) {
   let buff = Buffer.from(req.body, "base64");
   let eventBodyStr = buff.toString('UTF-8');
   let eventBody = JSON.parse(eventBodyStr);
-  const { userId, featureKey, value } = eventBody;
-  console.log(userId, featureKey, value);
+  const { userId, featureKey, targeting, value } = eventBody;
   const params = {
     TableName: FEATURE_FLAG_TABLE,
     Item: {
       userId: userId,
       featureKey: featureKey,
+      targeting: targeting,
       value: value,
     },
   };
@@ -87,7 +90,49 @@ app.post("/feature-flag", async function (req, res) {
     res.json({ featureKey, value });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: "Could not create user" });
+    res.status(500).json({ error: "Could not create feature flag: " + featureKey  });
+  }
+});
+
+app.put("/feature-flag", async function (req, res) {
+  let buff = Buffer.from(req.body, "base64");
+  let eventBodyStr = buff.toString('UTF-8');
+  let eventBody = JSON.parse(eventBodyStr);
+  const { userId, featureKey, targeting, value } = eventBody;
+  const params = {
+    TableName: FEATURE_FLAG_TABLE,
+    Item: {
+      userId: userId,
+      featureKey: featureKey,
+      targeting: targeting,
+      value: value,
+    },
+  };
+
+  try {
+    await dynamoDbClient.send(new PutCommand(params));
+    res.json({ featureKey, value });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Could not update feature flag: " + featureKey });
+  }
+});
+
+app.delete("/user/:userId/feature-flag/:featureKey", async function (req, res) {
+  const params = {
+    TableName: FEATURE_FLAG_TABLE,
+    Item: {
+      userId: req?.params?.userId,
+      featureKey: req?.params?.featureKey
+    },
+  };
+
+  try {
+    await dynamoDbClient.send(new DeleteCommand(params));
+    res.json({ featureKey });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Could not delete feature flag: " + featureKey });
   }
 });
 
