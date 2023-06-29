@@ -10,7 +10,7 @@ import { updateFeatureFlag, getFeatureFlags, addFeatureFlag, deleteFeatureFlag }
 function App() {
   const [featureFlags, setFeatureFlags] = useState([]);
   const [newFeatureFlag, setNewFeatureFlag] = useState();
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState();
 
   useEffect(() => {
     Hub.listen('auth', ({ payload: { event, data } }) => {
@@ -20,17 +20,19 @@ function App() {
           getUser().then(userData => setUser(userData));
           break;
         case 'signOut':
-          setUser(null);
+          setUser();
           break;
         case 'signIn_failure':
         case 'cognitoHostedUI_failure':
           console.log('Sign in failure', data);
           break;
+        default:
+          console.log("nothing happened")
       }
     });
 
-    getUser().then(userData => setUser(userData));
-  }, []);
+    if(!user) getUser().then(userData => setUser(userData));
+  }, [user]);
 
   function getUser() {
     return Auth.currentAuthenticatedUser()
@@ -40,24 +42,32 @@ function App() {
 
   useEffect(() => {
     const getFF = async () => {
-      const ffs = await getFeatureFlags(user.attributes.sub);
+      if(!user) return;
+
+      const ffs = await getFeatureFlags(user?.attributes?.sub);
       setFeatureFlags(ffs);
     }
     getFF();
-  }, []);
+  }, [user]);
 
   const onDelete = async (i) => {
-    const newFFs = await deleteFeatureFlag(i, featureFlags, user.attributes.sub);
+    if(!user) return;
+
+    const newFFs = await deleteFeatureFlag(i, featureFlags, user?.attributes?.sub);
     setFeatureFlags(newFFs);
   }
 
   const onAdd = async (newFF) => {
-    const newFFs = await addFeatureFlag(newFF, featureFlags, user.attributes.sub);
+    if(!user) return;
+
+    const newFFs = await addFeatureFlag(newFF, featureFlags, user?.attributes?.sub);
     setFeatureFlags(newFFs);
   }
 
   const onUpdate = async (ff, i) => {
-    const newFFs = await updateFeatureFlag(ff, i, featureFlags, user.attributes.sub);
+    if(!user) return;
+
+    const newFFs = await updateFeatureFlag(ff, i, featureFlags, user?.attributes?.sub);
     setFeatureFlags(newFFs);
   }
 
