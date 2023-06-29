@@ -68,20 +68,23 @@ app.get("/feature-flag", async function (req, res) {
 });
 
 app.post("/feature-flag", async function (req, res) {
-  const { userId, featureKey, value } = req.body;
-
+  let buff = Buffer.from(req.body, "base64");
+  let eventBodyStr = buff.toString('UTF-8');
+  let eventBody = JSON.parse(eventBodyStr);
+  const { userId, featureKey, value } = eventBody;
+  console.log(userId, featureKey, value);
   const params = {
     TableName: FEATURE_FLAG_TABLE,
     Item: {
-      userId,
-      featureKey,
-      value,
+      userId: userId,
+      featureKey: featureKey,
+      value: value,
     },
   };
 
   try {
     await dynamoDbClient.send(new PutCommand(params));
-    res.json({ userId, name });
+    res.json({ featureKey, value });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Could not create user" });
