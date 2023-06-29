@@ -119,14 +119,16 @@ app.put("/feature-flag", async function (req, res) {
 });
 
 app.delete("/user/:userId/feature-flag/:featureKey", async function (req, res) {
+  console.log(req.params);
+  const { userId, featureKey } = req?.params;
   const params = {
     TableName: FEATURE_FLAG_TABLE,
-    Item: {
-      userId: req?.params?.userId,
-      featureKey: req?.params?.featureKey
+    Key: {
+      userId: userId,
+      featureKey: featureKey
     },
   };
-
+  console.log(params)
   try {
     await dynamoDbClient.send(new DeleteCommand(params));
     res.json({ featureKey });

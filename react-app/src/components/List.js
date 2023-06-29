@@ -14,11 +14,8 @@ function List({ featureFlags, onDelete, onUpdate }) {
         <div className="Feature-List">
             {featureFlags.map((ff, i) => 
                 (editFeatureFlag?.i === i && 
-                <Row key={ff.featureKey}  gutter={16} >
-                    <Col span={12} offset={6}>
                     <Edit editFeatureFlag={editFeatureFlag} setEditFeatureFlag={setEditFeatureFlag} i={i} onUpdate={update}/>
-                    </Col>
-                </Row>)
+                    )
                 ||
                 (editFeatureFlag?.i !== i &&
                 <Row key={ff.featureKey} gutter={16}>

@@ -9,8 +9,8 @@ const addFeatureFlag = async (ff, featureFlags) => {
         body: JSON.stringify({
         userId: "nick",
         featureKey: ff.featureKey,
-        targeting: ff.targeting,
-        value: ff.value
+        targeting: ff.targeting || false,
+        value: ff.value || { default: false }
         })
     })
 
@@ -32,8 +32,8 @@ const updateFeatureFlag = async (ff, i, featureFlags) => {
         body: JSON.stringify({
         userId: "nick",
         featureKey: ff.featureKey,
-        targeting: ff.targeting,
-        value: ff.value
+        targeting: ff.targeting || false,
+        value: ff.value || { default: false }
         })
     })
 
@@ -45,19 +45,17 @@ const updateFeatureFlag = async (ff, i, featureFlags) => {
     return featureFlags;
 }
 
-const deleteFeatureFlag = async (ff, i, featureFlags) => {
-    const newFeatureFlags = cloneDeep(featureFlags);
-    newFeatureFlags[i] = ff;
-
-    const res = await fetch(APIEndPoint + '/user/nick/feature-flag/' + ff.featureKey, {
+const deleteFeatureFlag = async (i, featureFlags) => {
+    console.log(featureFlags[i].featureKey);
+    const res = await fetch(APIEndPoint + '/user/nick/feature-flag/' + featureFlags[i].featureKey, {
         headers: { accept: "application/json" },
         method: "DELETE"
     })
 
     if (res.ok) {
-        let newList = cloneDeep(featureFlags);
-        newList[i] = ff;
-        return newList;
+        let newFeatureFlags = cloneDeep(featureFlags);
+        newFeatureFlags.splice(i, 1);
+        return newFeatureFlags;
     }
     return featureFlags;
 }
