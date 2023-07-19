@@ -3,6 +3,8 @@ import { cloneDeep } from "lodash";
 const APIEndPoint = 'https://cgd2h41rrf.execute-api.us-east-1.amazonaws.com';
 
 const addFeatureFlag = async (ff, featureFlags, userId) => {
+    if(!userId) return featureFlags;
+    
     const res = await fetch(APIEndPoint + '/feature-flag', {
         headers: { accept: "application/json" },
         method: "POST",
@@ -23,6 +25,8 @@ const addFeatureFlag = async (ff, featureFlags, userId) => {
 }
 
 const updateFeatureFlag = async (ff, i, featureFlags, userId) => {
+    if(!userId) return featureFlags;
+
     const newFeatureFlags = cloneDeep(featureFlags);
     newFeatureFlags[i] = ff;
 
@@ -46,7 +50,8 @@ const updateFeatureFlag = async (ff, i, featureFlags, userId) => {
 }
 
 const deleteFeatureFlag = async (i, featureFlags, userId) => {
-    console.log(featureFlags[i].featureKey);
+    if(!userId) return featureFlags;
+
     const res = await fetch(APIEndPoint + `/user/${userId}/feature-flag/` + featureFlags[i].featureKey, {
         headers: { accept: "application/json" },
         method: "DELETE"
@@ -61,6 +66,8 @@ const deleteFeatureFlag = async (i, featureFlags, userId) => {
 }
 
 const getFeatureFlags = async (userId) => {
+    if(!userId) return [];
+
     const res = await fetch(APIEndPoint + `/user/${userId}/feature-flag`, {
         headers: { accept: "application/json" },
         method: "GET",
