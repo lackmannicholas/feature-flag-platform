@@ -15,8 +15,8 @@ Amplify.configure({
       oauth: {
         domain: 'feature-flag-platform-dev.auth.us-east-1.amazoncognito.com',
         scope: ['email', 'openid', 'profile', 'phone', 'aws.cognito.signin.user.admin'],
-        redirectSignIn: 'http://localhost:3000',
-        redirectSignOut: 'http"//localhost:3000',
+        redirectSignIn: 'https://d2q7jdqiw8qz71.cloudfront.net',
+        redirectSignOut: 'https://d2q7jdqiw8qz71.cloudfront.net',
         responseType: 'code',
       },
   }
